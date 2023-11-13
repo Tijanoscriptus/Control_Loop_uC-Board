@@ -18,42 +18,51 @@
 * =============
 * Siehe Prüfungsaufgabe
 *
-* Portbelegung:
-* =============
-* Port C:   Schalter
-* Port A:   LEDs
-* für genauere Beschreibung siehe Hardwarestruktur
 *
 * Verlauf:
 * ========
-* Datum:      Autor:         Version   Grund der Änderung:
-* dd.mm.yyyy  M. Muster      V1.0      Neuerstellung
+* Datum:      Autor:                             Version
+* 13.11.2023 Tijan Jotic, Cédric der XIII          V1.0      
 *
 \*********************************************************************************/
 
 //uC-Board-Treiber hinzufügen
+#include "Control_Loop.h"
+
 #include "ucBoardDriver.h"
 
-//Konstanten
+#include "stdint.h"
+
+//Defines
+
+#define GIVEN_SCALE_W       71232 //Istwert
+
+#define AMPLIFICATION_P         2   //P-Verstärkung
 
 
 //Hauptprogramm
 int main(void)
 {
-    //Variablen
-    
-    //Initialisieren
     initBoard(0);
+    
+    uint16_t controlScale_x = 0; //Regelungsgrösse = x
+    int16_t errorScale_e = 0; //Differenz des Soll-Werts und des Ist-Werts. 
+
+    int16_t regulationScale_y = 0; //Ausgang des reglers.
+
     
     //Unendlichschlaufe
     while(1)
     {
-        //Eingabe------------------------------------------------------------------
+        controlScale_x = adcRead(ADC_00_X4_PORTF_BIT0);
+
+        errorScale_e = GIVEN_SCALE_W - controlScale_x;
+        regulationScale_y = 
+            (errorScale_e * AMPLIFICATION_P)      //P-Anteil
+            + (0)   //I-Anteil
+            + (0);  //D-Anteil
         
-        //Verarbeitung-------------------------------------------------------------
-        
-        //Ausgabe------------------------------------------------------------------
-        
+        Control_Loop_output_regulation_scale(regulationScale_y);
     }
 }
 
